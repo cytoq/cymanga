@@ -1,0 +1,10 @@
+<h1>{{ manga.title }}</h1>
+<p>Author: {{ manga.author }}</p>
+<p>Genre: {{ manga.genre }}</p>
+<p>Status: {{ manga.status }}</p>
+<p>Chapters Read: {{ manga.chapters_read }} / {{ manga.total_chapters }}</p>
+<p>Start Date: {{ manga.start_date }}</p>
+<p>End Date: {{ manga.end_date }}</p>
+<a href="{% url 'manga_update' manga.pk %}">Edit</a>
+<a href="{% url 'manga_delete' manga.pk %}">Delete</a>
+<a href="{% url 'index' %}">Back to List</a>

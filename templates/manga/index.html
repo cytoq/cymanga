@@ -1,0 +1,12 @@
+<h1>Manga List</h1>
+<a href="{% url 'manga_create' %}">Add New Manga</a>
+<ul>
+    {% for manga in mangas %}
+        <li>
+            <a href="{% url 'manga_detail' manga.pk %}">{{ manga.title }}</a> 
+            by {{ manga.author }}
+            <a href="{% url 'manga_update' manga.pk %}">Edit</a>
+            <a href="{% url 'manga_delete' manga.pk %}">Delete</a>
+        </li>
+    {% endfor %}
+</ul>
