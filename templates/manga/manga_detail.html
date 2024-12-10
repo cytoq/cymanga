@@ -1,4 +1,9 @@
 <h1>{{ manga.title }}</h1>
+{% if manga.cover_image %}
+    <img src="{{ manga.cover_image.url }}" alt="{{ manga.title }} cover" width="200">
+{% else %}
+    <p>No cover image available.</p>
+{% endif %}
 <p>Author: {{ manga.author }}</p>
 <p>Genre: {{ manga.genre }}</p>
 <p>Status: {{ manga.status }}</p>

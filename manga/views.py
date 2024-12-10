@@ -16,29 +16,30 @@ class MangaListView(LoginRequiredMixin, ListView):
     model = Manga
     template_name = 'manga/index.html'
     context_object_name = 'mangas'
+    success_url = reverse_lazy('index')
 
 
-class MangaCreateView(LoginRequiredMixin, CreateView):
+class MangaCreateView(CreateView):
     model = Manga
     template_name = 'manga/manga_form.html'
-    fields = ['title', 'author', 'genre', 'status', 'chapters_read', 'total_chapters', 'start_date', 'end_date']
-    success_url = reverse_lazy('manga_list')
+    fields = ['title', 'author', 'genre', 'status', 'chapters_read', 'total_chapters', 'start_date', 'end_date', 'cover_image']
+    success_url = reverse_lazy('index')
 
 
-class MangaUpdateView(LoginRequiredMixin, UpdateView):
+class MangaUpdateView(UpdateView):
     model = Manga
+    fields = ['title', 'author', 'genre', 'status', 'chapters_read', 'total_chapters', 'start_date', 'end_date', 'cover_image']
     template_name = 'manga/manga_form.html'
-    fields = ['title', 'author', 'genre', 'status', 'chapters_read', 'total_chapters', 'start_date', 'end_date']
     success_url = reverse_lazy('manga_list')
 
 
 class MangaDeleteView(LoginRequiredMixin, DeleteView):
     model = Manga
     template_name = 'manga/manga_confirm_delete.html'
-    success_url = reverse_lazy('manga_list')
+    success_url = reverse_lazy('index')
 
 
 class MangaDetailView(LoginRequiredMixin, DetailView):
     model = Manga
     template_name = 'manga/manga_detail.html'
-    context_object_name = 'manga'
+    success_url = reverse_lazy('index')
