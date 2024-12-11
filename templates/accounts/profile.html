@@ -1,14 +1,24 @@
-<!-- accounts/templates/accounts/profile.html -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Profile</title>
-</head>
-<body>
-    <h1>Welcome, {{ user.username }}</h1>
-    <p>Here is your profile page.</p>
-    <a href="{% url 'update_profile' %}">Update Profile</a>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}Profile Details{% endblock %}
+
+{% block content %}
+    <h3>Profile Details</h3>
+
+    <div>
+        {% if user.profile.image %}
+            <img src="{{ user.profile.image.url }}" alt="Profile Picture" style="max-width: 200px;">
+        {% else %}
+            <p>No profile picture available.</p>
+        {% endif %}
+        <p><strong>Username:</strong> {{ user.username }}</p>
+    </div>
+
+    <p>
+        <a href="{% url 'update_profile' %}">Update Profile</a>
+    </p>
+
+    <p>
+        <a href="{% url 'delete_account' %}" style="color: red; text-decoration: none;">Delete Account</a>
+    </p>
+{% endblock %}

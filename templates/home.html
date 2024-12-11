@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+<h1>
+    {% if is_authenticated %}
+        Welcome back, {{ user.username }}! 
+    {% else %}
+        Welcome to Cymanga! Please log in or register to get started.
+    {% endif %}
+</h1>
+
+<p>
+    {% if is_authenticated %}
+        We're happy to see you! You can <a href="{% url 'manga_list' %}"> take a look at your favorite mangas!</a>.
+    {% else %}
+        Please <a href="{% url 'login' %}">log in</a> or <a href="{% url 'register' %}">register</a> to get started.
+    {% endif %}
+</p>
+
+<p>
+    Here you can manage your manga collection and comment on your favorite stories. Feel free to explore!
+</p>
+    
+<div style="text-align: center; margin-bottom: 20px;">
+    <img src="{% static 'images/filler.jpg' %}" style="width: 2510px; height: auto; border-radius: 0px;">
+</div>
+    
+{% endblock %}

@@ -1,15 +1,133 @@
-<h1>{{ manga.title }}</h1>
-{% if manga.cover_image %}
-    <img src="{{ manga.cover_image.url }}" alt="{{ manga.title }} cover" width="200">
-{% else %}
-    <p>No cover image available.</p>
-{% endif %}
-<p>Author: {{ manga.author }}</p>
-<p>Genre: {{ manga.genre }}</p>
-<p>Status: {{ manga.status }}</p>
-<p>Chapters Read: {{ manga.chapters_read }} / {{ manga.total_chapters }}</p>
-<p>Start Date: {{ manga.start_date }}</p>
-<p>End Date: {{ manga.end_date }}</p>
-<a href="{% url 'manga_update' manga.pk %}">Edit</a>
-<a href="{% url 'manga_delete' manga.pk %}">Delete</a>
-<a href="{% url 'index' %}">Back to List</a>
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block title %}Manga Detail{% endblock %}
+
+{% block content %}
+<div class="manga-detail">
+    <!-- Display the manga cover image -->
+    <div class="manga-cover">
+        <img src="{{ manga.cover_image.url }}" alt="{{ manga.title }} Cover" style="max-width: 300px; max-height: 400px; object-fit: cover;">
+    </div>
+
+    <!-- Display manga details -->
+    <div class="manga-info">
+        <h2>{{ manga.title }}</h2>
+        <p><strong>Author:</strong> {{ manga.author }}</p>
+        <p><strong>Genre:</strong> {{ manga.genre }}</p>
+        <p><strong>Status:</strong> {{ manga.get_status_display }}</p>
+        {% if manga.total_chapters %}
+            <p><strong>Total Chapters:</strong> {{ manga.total_chapters }}</p>
+        {% endif %}
+        {% if manga.start_date %}
+            <p><strong>Start Date:</strong> {{ manga.start_date }}</p>
+        {% endif %}
+        {% if manga.end_date %}
+            <p><strong>End Date:</strong> {{ manga.end_date }}</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Back button -->
+<div style="margin-top: 20px;">
+    <a href="{% url 'manga_list' %}" class="button" style="text-decoration: none; background-color: #007BFF; color: white; padding: 10px 20px; border-radius: 5px;">Back</a>
+</div>
+
+<!-- Rating Section -->
+<div class="rating-section" style="margin-top: 30px;">
+    <h3>Rate This Manga</h3>
+    {% if user.is_authenticated %}
+        <form method="post" action="{% url 'rate_manga' manga_id=manga.pk %}">
+    {% csrf_token %}
+    <label for="rating">Choose a rating:</label>
+    <select name="rating" id="rating" required>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+    </select><br>
+    <button type="submit" style="background-color: #28a745; color: white; padding: 10px 15px; border: none; border-radius: 5px;">Submit Rating</button>
+</form>
+    {% else %}
+        <p><a href="{% url 'login' %}">Log in</a> to rate this manga.</p>
+    {% endif %}
+</div>
+
+<!-- Display Average Rating -->
+<div style="margin-top: 20px;">
+    <p><strong>Average Rating:</strong> 
+        {% if manga.average_rating %}
+            {{ manga.average_rating|floatformat:1 }} / 5
+        {% else %}
+            No ratings yet
+        {% endif %}
+    </p>
+</div>
+
+<!-- Comments Section -->
+<div class="comments-section" style="margin-top: 30px;">
+    <h3>Comments</h3>
+    
+    {% if user.is_authenticated %}
+        <form method="post" action="{% url 'add_comment' manga.id %}">
+            {% csrf_token %}
+            <textarea name="content" rows="4" cols="50" placeholder="Add a comment..." required></textarea><br>
+            <button type="submit" style="background-color: #28a745; color: white; padding: 10px 15px; border: none; border-radius: 5px;">Post Comment</button>
+        </form>
+    {% else %}
+        <p><a href="{% url 'login' %}">Log in</a> to add a comment.</p>
+    {% endif %}
+
+    <div class="comment-list" style="margin-top: 20px;">
+        {% for comment in manga.comments.all %}
+            <div class="comment" style="border-bottom: 1px solid #ddd; padding: 10px 0;">
+                <div class="user-info">
+                    <!-- Display profile picture next to username -->
+                    {% if comment.user.profile.image %}
+                        <img src="{{ comment.user.profile.image.url }}" alt="{{ comment.user.username }}'s Avatar" class="avatar">
+                    {% else %}
+                        <img src="{% static 'profile_pics/default.jpg' %}" alt="Default Avatar" class="avatar">
+                    {% endif %}
+                    <strong>{{ comment.user.username }}</strong>
+                </div>
+                <p>{{ comment.content }}</p>
+                <p><small>Posted on: {{ comment.created_at }}</small></p>
+                {% if comment.user == user or user.is_staff %}
+                    <a href="{% url 'edit_comment' comment.id %}" style="color: #007BFF;">Edit</a> | 
+                    <a href="{% url 'delete_comment' comment.id %}" style="color: red;">Delete</a>
+                {% endif %}
+            </div>
+        {% empty %}
+            <p>No comments yet. Be the first to comment!</p>
+        {% endfor %}
+    </div>
+</div>
+    
+<!-- CSS for styling profile picture and layout -->
+    <style>
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .avatar {
+            width: 65px;
+            height: 65px;
+            max-width: 65px;
+            max-height: 65px;
+            border-radius: 75%;
+            margin-right: 10px;
+        }
+
+        .comment-list p {
+            font-size: 14px;
+        }
+
+        .comment-list strong {
+            font-size: 16px;
+        }
+    </style>    
+
+{% endblock %}

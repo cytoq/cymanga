@@ -1,12 +1,102 @@
-<h1>Manga List</h1>
-<a href="{% url 'manga_create' %}">Add New Manga</a>
-<ul>
-    {% for manga in mangas %}
-        <li>
-            <a href="{% url 'manga_detail' manga.pk %}">{{ manga.title }}</a> 
-            by {{ manga.author }}
-            <a href="{% url 'manga_update' manga.pk %}">Edit</a>
-            <a href="{% url 'manga_delete' manga.pk %}">Delete</a>
-        </li>
-    {% endfor %}
-</ul>
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Manga List</h2>
+
+    <!-- Search Form -->
+    <form method="get" action="{% url 'manga_list' %}" style="margin-bottom: 20px;">
+        {% csrf_token %}
+        <div>
+            <input type="text" name="query" placeholder="Search for a manga..." value="{{ request.GET.query }}" style="padding: 5px; width: 200px;">
+            <button type="submit" style="background-color: #007BFF; color: white; padding: 5px 10px;">Search</button>
+        </div>
+    </form>
+
+    <!-- Manga Grid -->
+    <div class="manga-grid">
+        {% for manga in mangas %}
+            <div class="manga-item">
+                <!-- Manga Cover -->
+                <div class="manga-cover">
+                    {% if manga.cover_image %}
+                        <img src="{{ manga.cover_image.url }}" alt="{{ manga.title }} Cover" style="max-width: 100%; height: auto; object-fit: cover;">
+                    {% else %}
+                        <p>No cover available</p>
+                    {% endif %}
+                </div>
+
+                <!-- Manga Title and Author -->
+                <div class="manga-info">
+                    <h3>{{ manga.title }}</h3>
+                    <p><strong>Author:</strong> {{ manga.author }}</p>
+                    <p><strong>Genre:</strong> {{ manga.genre }}</p>
+                </div>
+
+                <!-- Link to Manga Detail Page -->
+                <a href="{% url 'manga_detail' manga.id %}" style="text-decoration: none; background-color: #007BFF; color: white; padding: 5px 10px; border-radius: 5px;">View Details</a>
+            </div>
+        {% empty %}
+            <p>No mangas found.</p>
+        {% endfor %}
+    </div>
+
+    <style>
+        .manga-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr); /* 5 columns */
+            gap: 50px;
+            padding: 20px;
+        }
+
+        .manga-item {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .manga-item img {
+            width: 75%;
+            max-height: 500px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+
+        .manga-info {
+            padding-top: 10px;
+        }
+
+        .manga-info h3 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .manga-info p {
+            font-size: 14px;
+        }
+
+        @media (max-width: 1200px) {
+            .manga-grid {
+                grid-template-columns: repeat(4, 1fr); /* 4 columns for larger tablets */
+            }
+        }
+
+        @media (max-width: 900px) {
+            .manga-grid {
+                grid-template-columns: repeat(3, 1fr); /* 3 columns for small tablets */
+            }
+        }
+
+        @media (max-width: 600px) {
+            .manga-grid {
+                grid-template-columns: repeat(2, 1fr); /* 2 columns for mobile */
+            }
+        }
+
+        @media (max-width: 400px) {
+            .manga-grid {
+                grid-template-columns: 1fr; /* 1 column for very small screens */
+            }
+        }
+    </style>
+{% endblock %}
