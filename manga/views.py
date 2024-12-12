@@ -12,7 +12,7 @@ class MangaListView(ListView):
     model = Manga
     template_name = 'manga/index.html'
     context_object_name = 'mangas'
-    paginate_by = 10  # Add pagination if needed
+    paginate_by = 10
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -37,7 +37,6 @@ class AddMangaView(CreateView):
     success_url = reverse_lazy('manga_list')  # Redirect to the manga list after successful creation
 
     def form_valid(self, form):
-        # Any additional logic (e.g., logging, modifying form data) can go here before saving
         return super().form_valid(form)
 
 
@@ -69,8 +68,6 @@ def manga_detail(request, manga_id):
             comment.save()
             return redirect('manga_detail', manga_id=manga.id)
 
-        # Handle invalid comment form (optional: show errors in template)
-
         if rating_form.is_valid():
             rating = rating_form.cleaned_data['rating']  # Access validated data
             # Check if the user has already rated this manga
@@ -82,7 +79,6 @@ def manga_detail(request, manga_id):
                 new_rating = Rating.objects.create(manga=manga, user=request.user, rating=rating)
             return redirect('manga_detail', manga_id=manga.id)
 
-        # Handle invalid rating form (optional: show errors in template)
 
     return render(request, 'manga/manga_detail.html', context)
 
