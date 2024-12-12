@@ -15,7 +15,7 @@ class Manga(models.Model):
     total_chapters = models.IntegerField(null=True, blank=True)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
-    cover_image = models.ImageField(upload_to='manga_covers/', null=True, blank=True)  # Add this field
+    cover_image = models.ImageField(upload_to='manga_covers/', null=True, blank=True)
 
     def __str__(self):
         return self.title
@@ -33,7 +33,7 @@ class Manga(models.Model):
 
 class Comment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    manga = models.ForeignKey(Manga, on_delete=models.CASCADE, related_name='comments')  # Use related_name to access comments from Manga
+    manga = models.ForeignKey(Manga, on_delete=models.CASCADE, related_name='comments')
     content = models.TextField()
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
