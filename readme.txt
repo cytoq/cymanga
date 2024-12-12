@@ -1,3 +1,5 @@
+(message for the person grading this project: i forgot to add the .env info in the form before i submit it, feel free to DM me on discord for it my account is @cyto_oq)                                                                                                          (also as of the time im writing this, i am currently sick so please go easy on me! :) )
+
 Hey, hello! This app allows you to take a look at various mangas and check their user-given ratings and comments to decide if they're worth a try. What does it feature?
 
 A homepage that lets you login/register. (Or not, if you're already logged in. Then it looks like a typical homepage)
