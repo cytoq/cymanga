@@ -25,6 +25,5 @@ def assign_permissions_to_moderators(sender, **kwargs):
     moderator_group, created = Group.objects.get_or_create(name='moderator')
 
     if created:
-        # Here you can add specific permissions for the moderator group
         permissions = Permission.objects.filter(codename__in=['edit_comment', 'delete_comment'])
         moderator_group.permissions.set(permissions)
