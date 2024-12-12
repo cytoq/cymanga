@@ -17,60 +17,50 @@ INSTRUCTIONS TO SETUP:
 
 Prerequisites:
 
-Git: Ensure you have Git installed on your system.
-Python and Django: Make sure you have Python and Django installed.
+Git
+Python
+Django
+Setup Instructions:
 
-1. Cloning the Repository:
-Open your terminal or command prompt.
+1. Clone the Repository:
 
-Navigate to the desired directory: Use the cd command to navigate to the directory where you want to clone the project.   
+Open your terminal or command prompt and navigate to the desired directory where you want to clone the project:
 
-Clone the repository: Use the following command
 
+cd desired_directory
 git clone https://github.com/cytoq/cymanga.git
 
-2. Setting Up the Virtual Environment:
-Navigate to the Project Directory:
+2. Install Dependencies:
 
-Use the cd command to navigate into the cloned directory:
+Activate a virtual environment (recommended) and install the required packages:
 
-cd your_repository_name
 
-Create a Virtual Environment:
-
-Create a virtual environment to isolate project dependencies:
-     python -m venv venv
-
-3. Activate the Virtual Environment:
-
-Windows:
-
-venv\Scripts\activate
-
-Linux/macOS:
-
-source venv/bin/activate
-  
-Installing Dependencies:
-
-Install the required packages listed in the requirements.txt file:
-
+python -m venv venv
+source venv/bin/activate  # Linux/macOS
+venv\Scripts\activate  # Windows
 pip install -r requirements.txt
 
-Running Migrations:
+You can alternatively install dependencies without a virtual environment using pip install -r requirements.txt.
 
-Apply any database migrations:
+3. Run Migrations:
+
+Apply database migrations:
+
 
 python manage.py migrate
 
-Activate API:
+4. Import Manga Data (Optional):
 
-python manage.py import_mangas
+If you want to fill the app with mangas, run:
 
-Starting the Development Server:
+python manage.py import_mangas  
 
-Start the Django development server:
+This command will get information from JikanAPI
 
+5. Start the Development Server:
+
+Start the Django development server to access the application:
 
 python manage.py runserver
 
+This will start the server, typically accessible at http://127.0.0.1:8000/.
