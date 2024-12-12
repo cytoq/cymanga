@@ -21,6 +21,6 @@ class SearchForm(forms.Form):
 class RatingForm(forms.ModelForm):
     class Meta:
         model = Rating
-        fields = ['rating']  # Only include the rating field
+        fields = ['rating']
 
     rating = forms.ChoiceField(choices=[(i, i) for i in range(1, 6)], widget=forms.Select(attrs={'class': 'form-control'}))
