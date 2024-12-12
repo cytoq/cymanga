@@ -54,33 +54,37 @@ class MangaDeleteView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy('index')
 
 
-class MangaDetailView(DetailView):
-    model = Manga
-    template_name = 'manga/manga_detail.html'
-    context_object_name = 'manga'
+def manga_detail(request, manga_id):
+    manga = get_object_or_404(Manga, id=manga_id)
+    context = {'manga': manga, 'form': CommentForm(), 'comments': manga.comments.all(), 'rating_form': RatingForm()}
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        manga = self.get_object()
-        context['form'] = CommentForm()
-        context['comments'] = manga.comments.all()
-        context['rating_form'] = RatingForm()
-        return context
+    if request.method == 'POST':
+        comment_form = CommentForm(request.POST)
+        rating_form = RatingForm(request.POST)
 
-    def post(self, request, *args, **kwargs):
-        # Handle comment submission
-        manga = self.get_object()  # Get the manga object
-        form = CommentForm(request.POST)
-
-        if form.is_valid():
-            comment = form.save(commit=False)
+        if comment_form.is_valid():
+            comment = comment_form.save(commit=False)
             comment.user = request.user
             comment.manga = manga
             comment.save()
             return redirect('manga_detail', manga_id=manga.id)
 
-        # If form is invalid, render the page again with form errors
-        return self.get(request, *args, **kwargs)
+        # Handle invalid comment form (optional: show errors in template)
+
+        if rating_form.is_valid():
+            rating = rating_form.cleaned_data['rating']  # Access validated data
+            # Check if the user has already rated this manga
+            existing_rating = Rating.objects.filter(manga=manga, user=request.user).first()
+            if existing_rating:
+                existing_rating.rating = rating
+                existing_rating.save()
+            else:
+                new_rating = Rating.objects.create(manga=manga, user=request.user, rating=rating)
+            return redirect('manga_detail', manga_id=manga.id)
+
+        # Handle invalid rating form (optional: show errors in template)
+
+    return render(request, 'manga/manga_detail.html', context)
 
 
 @login_required
@@ -115,7 +119,6 @@ def delete_comment(request, comment_id):
 
 @login_required
 def add_comment(request, manga_id):
-    # Get the manga object using the manga_id
     manga = get_object_or_404(Manga, id=manga_id)
 
     if request.method == 'POST':
@@ -142,7 +145,6 @@ def rate_manga(request, manga_id):
                     existing_rating.save()
                 else:
                     new_rating = Rating.objects.create(manga=manga, user=request.user, rating=rating)
-                # Redirect back to the manga detail page
                 return redirect('manga_detail', manga_id=manga.id)
 
     return redirect('manga_detail', manga_id=manga.id)
