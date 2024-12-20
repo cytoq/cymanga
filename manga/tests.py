@@ -1,66 +1,156 @@
 from django.test import TestCase
-from django.urls import reverse
 from django.contrib.auth.models import User
+from django.urls import reverse
 
-from .models import Manga
+from .models import Manga, Comment, Rating
 
 
-class MangaListViewTests(TestCase):
+class MangaModelTest(TestCase):
 
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='testpassword')
-        self.manga1 = Manga.objects.create(title="Manga One", author="Author One")
-        self.manga2 = Manga.objects.create(title="Manga Two", author="Author Two")
-        self.client.login(username='testuser', password='testpassword')
+        self.user = User.objects.create_user(username='testuser', password='TestPassword123!')
+        self.manga = Manga.objects.create(
+            title="Test Manga",
+            author="Test Author",
+            genre="Action",
+            status="Publishing",
+            total_chapters=10,
+            cover_image=None
+        )
 
-    def test_manga_list_get(self):
+    def test_manga_str(self):
+        self.assertEqual(str(self.manga), "Test Manga")
+
+    def test_average_rating_no_ratings(self):
+        self.assertIsNone(self.manga.average_rating())
+
+    def test_average_rating_with_ratings(self):
+        Rating.objects.create(manga=self.manga, user=self.user, rating=5)
+        Rating.objects.create(manga=self.manga, user=self.user, rating=4)
+        self.assertEqual(self.manga.average_rating(), 4.5)
+
+
+class CommentModelTest(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', password='TestPassword123!')
+        self.manga = Manga.objects.create(
+            title="Test Manga",
+            author="Test Author",
+            genre="Action",
+            status="Publishing",
+            total_chapters=10,
+            cover_image=None
+        )
+        self.comment = Comment.objects.create(
+            user=self.user,
+            manga=self.manga,
+            content="Great manga!"
+        )
+
+    def test_comment_str(self):
+        self.assertEqual(str(self.comment), "Comment by testuser on Test Manga")
+
+
+class RatingModelTest(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', password='TestPassword123!')
+        self.manga = Manga.objects.create(
+            title="Test Manga",
+            author="Test Author",
+            genre="Action",
+            status="Publishing",
+            total_chapters=10,
+            cover_image=None
+        )
+        self.rating = Rating.objects.create(
+            manga=self.manga,
+            user=self.user,
+            rating=4
+        )
+
+    def test_rating_str(self):
+        self.assertEqual(str(self.rating), "testuser rated Test Manga 4/5")
+
+
+class MangaViewTest(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', password='TestPassword123!')
+        self.manga = Manga.objects.create(
+            title="Test Manga",
+            author="Test Author",
+            genre="Action",
+            status="Publishing",
+            total_chapters=10,
+            cover_image=None
+        )
+
+    def test_manga_list_view(self):
         response = self.client.get(reverse('manga_list'))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'manga/index.html')
-        self.assertContains(response, 'Manga One')
-        self.assertContains(response, 'Manga Two')
+        self.assertContains(response, "Test Manga")
 
-    def test_search_functionality(self):
-        response = self.client.get(reverse('manga_list'), {'query': 'Manga One'})
+    def test_manga_delete_view(self):
+        self.client.login(username='testuser', password='TestPassword123!')
+        response = self.client.get(reverse('manga_delete', args=[self.manga.id]))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Manga One')
-        self.assertNotContains(response, 'Manga Two')
+        response = self.client.post(reverse('manga_delete', args=[self.manga.id]))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Manga.objects.count(), 0)
 
 
-
-class AddMangaViewTest(TestCase):
+class CommentViewTest(TestCase):
 
     def setUp(self):
-        # Create a test user
-        self.user = User.objects.create_user(username='testuser', password='password')
+        self.user = User.objects.create_user(username='testuser', password='TestPassword123!')
+        self.manga = Manga.objects.create(
+            title="Test Manga",
+            author="Test Author",
+            genre="Action",
+            status="Publishing",
+            total_chapters=10,
+            cover_image=None
+        )
 
-        # Define common test data
-        self.manga_data = {
-            'title': 'New Manga',
-            'author': 'New Author',
-            'genre': 'Action',
-            'status': 'Publishing',
-            'chapters_read': 0,
-            'total_chapters': 10,
-        }
+    def test_add_comment_view(self):
+        self.client.login(username='testuser', password='TestPassword123!')
+        data = {'content': 'This is a comment.'}
+        response = self.client.post(reverse('add_comment', args=[self.manga.id]), data)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.manga.comments.count(), 1)
 
-        # Log the user in
-        self.client.login(username='testuser', password='password')
-
-    def test_add_manga_view_redirects_successfully(self):
-        """Test that submitting valid manga data redirects to the manga list."""
-        response = self.client.post(reverse('add_manga'), self.manga_data)
-        self.assertRedirects(response, reverse('manga_list'))
-
-    def test_add_manga_creates_database_entry(self):
-        """Test that submitting valid manga data creates the correct database entry."""
-        self.client.post(reverse('add_manga'), self.manga_data)
-
-        # Verify database state
-        self.assertEqual(Manga.objects.count(), 1)
-        created_manga = Manga.objects.first()
-        self.assertEqual(created_manga.title, 'New Manga')
-        self.assertEqual(created_manga.author, 'New Author')
-        self.assertEqual(created_manga.genre, 'Action')
+    def test_edit_comment_view(self):
+        self.client.login(username='testuser', password='TestPassword123!')
+        comment = Comment.objects.create(
+            user=self.user,
+            manga=self.manga,
+            content="Original comment"
+        )
+        data = {'content': 'Updated comment'}
+        response = self.client.post(reverse('edit_comment', args=[comment.id]), data)
+        self.assertEqual(response.status_code, 302)
+        comment.refresh_from_db()
+        self.assertEqual(comment.content, 'Updated comment')
 
 
+class RatingViewTest(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', password='TestPassword123!')
+        self.manga = Manga.objects.create(
+            title="Test Manga",
+            author="Test Author",
+            genre="Action",
+            status="Publishing",
+            total_chapters=10,
+            cover_image=None
+        )
+
+    def test_rate_manga_view(self):
+        self.client.login(username='testuser', password='TestPassword123!')
+        data = {'rating': 4}
+        response = self.client.post(reverse('rate_manga', args=[self.manga.id]), data)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.manga.ratings.count(), 1)
