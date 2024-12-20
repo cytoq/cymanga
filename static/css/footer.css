@@ -1,0 +1,28 @@
+/* Footer */
+.site-footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    position: relative; /* Changed from fixed to relative */
+    width: 100%;
+    margin-top: auto; /* Pushes footer to the bottom */
+}
+
+/* Add flexbox to the body and content wrapper to ensure footer stays at the bottom */
+html, body {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.content-wrapper {
+    display: flex;
+    flex-direction: column;
+    flex: 1; /* Makes sure content takes all available space */
+}
+
+.site-content {
+    flex-grow: 1; /* Ensures content area grows to fill available space */
+}

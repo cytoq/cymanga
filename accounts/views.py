@@ -21,30 +21,28 @@ def register(request):
         if form.is_valid():
             user = form.save()
             messages.success(request, f'Account created for {user.username}!')
-            login(request, user)  # Automatically log in the user after registration
-            return redirect('profile')  # Redirect to profile page after registration
+            login(request, user)
+            return redirect('profile')
     else:
         form = UserCreationForm()
 
     return render(request, 'accounts/register.html', {'form': form})
 
 
-# Login view
 def login_view(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
-            login(request, user)  # Log in the user
+            login(request, user)
             messages.success(request, f'Welcome back, {user.username}!')
-            return redirect('profile')  # Redirect to profile page after successful login
+            return redirect('profile')
     else:
         form = AuthenticationForm()
 
     return render(request, 'accounts/login.html', {'form': form})
 
 
-# Profile view (only accessible if logged in)
 @login_required
 def profile_view(request):
     user = request.user
@@ -57,33 +55,31 @@ def update_profile(request):
         form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
         if form.is_valid():
             form.save()
-            return redirect('profile')  # Redirect to profile page after saving
+            return redirect('profile')
     else:
         form = ProfileUpdateForm(instance=request.user.profile)
 
     return render(request, 'accounts/update_profile.html', {'form': form})
 
 
-# Account deletion view (only accessible if logged in)
 @login_required
 def delete_account(request):
     if request.method == 'POST':
         user = request.user
-        user.delete()  # Delete the user account
+        user.delete()
         messages.success(request, 'Your account has been deleted.')
-        return redirect('home')  # Redirect to the home page after account deletion
+        return redirect('home')
 
     return render(request, 'accounts/delete_account.html')
 
 
-# Custom logout view (logs out the user and redirects to home)
 def custom_logout(request):
     if request.method == 'POST':
-        logout(request)  # Log out the user
+        logout(request)
         messages.info(request, 'You have been logged out.')
-        return redirect('home')  # Redirect to home after logout
+        return redirect('home')
 
-    return render(request, 'accounts/logout.html')  # Show confirmation page for logout
+    return render(request, 'accounts/logout.html')
 
 
 class PasswordResetView(View):
@@ -91,7 +87,7 @@ class PasswordResetView(View):
 
     def get(self, request, user_id=None):
         form = None
-        if user_id:  # For the reset confirmation form
+        if user_id:
             user = get_user_model().objects.filter(id=user_id).first()
             if not user:
                 raise Http404("User not found")
@@ -102,7 +98,7 @@ class PasswordResetView(View):
         return render(request, self.template_name, {'form': form, 'user_id': user_id})
 
     def post(self, request, user_id=None):
-        if user_id:  # For the reset confirmation
+        if user_id:
             user = get_user_model().objects.filter(id=user_id).first()
             if not user:
                 raise Http404("User not found")
@@ -112,9 +108,9 @@ class PasswordResetView(View):
 
         if form.is_valid():
             user = form.save()
-            update_session_auth_hash(request, user)  # Keep the user logged in
+            update_session_auth_hash(request, user)
             messages.success(request, "Password reset successfully")
-            return redirect('password_reset_complete')  # Redirect to a confirmation page
+            return redirect('password_reset_complete')
 
         return render(request, self.template_name, {'form': form, 'user_id': user_id})
 

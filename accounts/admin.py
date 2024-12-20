@@ -29,8 +29,7 @@ class ProfileAdmin(admin.ModelAdmin):
         else:
             return 'Normal User'
 
-    user_role.short_description = 'Role'  # Customizing the column header for the role field
+    user_role.short_description = 'Role'
 
 
-# Register Profile Model with the admin customization
 admin.site.register(Profile, ProfileAdmin)

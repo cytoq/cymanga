@@ -1,7 +1,16 @@
-<h1>Delete Manga</h1>
-<p>Are you sure you want to delete "{{ object.title }}"?</p>
-<form method="post">
-    {% csrf_token %}
-    <button type="submit">Yes, Delete</button>
-</form>
-<a href="{% url 'index' %}">Cancel</a>
+{% extends 'base.html' %}
+
+{% block title %}Delete Manga{% endblock %}
+
+{% block content %}
+<div class="delete-manga-container" style="text-align: center; margin-top: 50px;">
+    <h2>Are you sure you want to delete "{{ object.title }}"?</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="button">Yes, Delete</button>
+    </form>
+
+    <a href="{% url 'manga_detail' manga.pk %}" class="button">Cancel</a>
+</div>
+{% endblock %}

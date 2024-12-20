@@ -1,8 +1,8 @@
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import UpdateView, DeleteView, ListView, CreateView, DetailView
+from django.views.generic import DeleteView, ListView, CreateView, UpdateView
 from django.urls import reverse_lazy
 from .models import Manga, Comment, Rating
-from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import CommentForm, MangaForm, SearchForm, RatingForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -12,7 +12,6 @@ class MangaListView(ListView):
     model = Manga
     template_name = 'manga/index.html'
     context_object_name = 'mangas'
-    paginate_by = 10  # Add pagination if needed
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -30,28 +29,30 @@ class MangaListView(ListView):
         return queryset
 
 
-class AddMangaView(CreateView):
+class CreateMangaView(CreateView):
     model = Manga
     form_class = MangaForm
-    template_name = 'manga/manga_form.html'
-    success_url = reverse_lazy('manga_list')  # Redirect to the manga list after successful creation
+    template_name = 'manga/create_manga.html'
 
     def form_valid(self, form):
-        # Any additional logic (e.g., logging, modifying form data) can go here before saving
-        return super().form_valid(form)
+        form.save()
+        return redirect('manga_list')
 
 
-class MangaUpdateView(UpdateView):
+class UpdateMangaView(UpdateView):
     model = Manga
-    fields = ['title', 'author', 'genre', 'status', 'chapters_read', 'total_chapters', 'start_date', 'end_date', 'cover_image']
-    template_name = 'manga/manga_form.html'
-    success_url = reverse_lazy('manga_list')
+    form_class = MangaForm
+    template_name = 'manga/update_manga.html'
+
+    def form_valid(self, form):
+        form.save()
+        return redirect('manga_list')
 
 
-class MangaDeleteView(LoginRequiredMixin, DeleteView):
+class MangaDeleteView(DeleteView):
     model = Manga
     template_name = 'manga/manga_confirm_delete.html'
-    success_url = reverse_lazy('index')
+    success_url = reverse_lazy('manga_list')
 
 
 def manga_detail(request, manga_id):
@@ -69,11 +70,8 @@ def manga_detail(request, manga_id):
             comment.save()
             return redirect('manga_detail', manga_id=manga.id)
 
-        # Handle invalid comment form (optional: show errors in template)
-
         if rating_form.is_valid():
-            rating = rating_form.cleaned_data['rating']  # Access validated data
-            # Check if the user has already rated this manga
+            rating = rating_form.cleaned_data['rating']
             existing_rating = Rating.objects.filter(manga=manga, user=request.user).first()
             if existing_rating:
                 existing_rating.rating = rating
@@ -81,8 +79,6 @@ def manga_detail(request, manga_id):
             else:
                 new_rating = Rating.objects.create(manga=manga, user=request.user, rating=rating)
             return redirect('manga_detail', manga_id=manga.id)
-
-        # Handle invalid rating form (optional: show errors in template)
 
     return render(request, 'manga/manga_detail.html', context)
 
@@ -124,7 +120,6 @@ def add_comment(request, manga_id):
     if request.method == 'POST':
         content = request.POST.get('content')
         if content:
-            # Create the new comment and associate it with the manga and user
             Comment.objects.create(user=request.user, manga=manga, content=content)
         return redirect('manga_detail', manga_id=manga.id)
 
@@ -138,7 +133,6 @@ def rate_manga(request, manga_id):
         if request.method == 'POST':
             rating = request.POST.get('rating')
             if rating:
-                # Check if the user has already rated this manga
                 existing_rating = Rating.objects.filter(manga=manga, user=request.user).first()
                 if existing_rating:
                     existing_rating.rating = rating
@@ -148,3 +142,7 @@ def rate_manga(request, manga_id):
                 return redirect('manga_detail', manga_id=manga.id)
 
     return redirect('manga_detail', manga_id=manga.id)
+
+
+def custom_error(request, exception=None):
+    return render(request, '404.html', status=exception.status_code if exception else 500)

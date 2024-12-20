@@ -8,12 +8,26 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
-#im not showing you my secret key (it's really secret)
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+
+#I left this in because once again I forgot to send a word doc with the .env's contents, sorry!
+
+SECRET_KEY = 'django-insecure-6=)ayi9z=ydsd5^t%-k^%m&s3h6aft^af-x+h%)89j6ui!izdi'
+
+
+DATABASES = {
+   "default": {
+       "ENGINE": "django.db.backends.postgresql",
+     "NAME": "cymanga",
+       "USER": "admin",
+      "PASSWORD": "admin123",
+      "HOST": "127.0.0.1",
+      "PORT": "5432",
+     }
+ }
 
 
 # Application definition
@@ -61,9 +75,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'djangoProject4.wsgi.application'
 
 
-#not showing you my postgres password either, add your own :P
 
-# Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -94,9 +106,11 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
+
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 LOGIN_URL = '/login/'
 LOGOUT_REDIRECT_URL = '/'

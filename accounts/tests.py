@@ -11,7 +11,7 @@ class UserAccountTests(TestCase):
         self.user_profile = self.user.profile  # Assuming the user has a related profile
 
     def test_register_view(self):
-        url = reverse('register')  # URL for the register page
+        url = reverse('register')
         data = {
             'username': 'newuser',
             'password1': 'newpassword123',
@@ -103,5 +103,4 @@ class ProfileUpdateTest(TestCase):
         self.assertEqual(updated_user.username, 'testuser')
 
     def tearDown(self):
-        # Clean up after the test
         self.user.delete()

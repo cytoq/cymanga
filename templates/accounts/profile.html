@@ -3,22 +3,29 @@
 {% block title %}Profile Details{% endblock %}
 
 {% block content %}
-    <h3>Profile Details</h3>
+<div class="profile-container">
+    <h3 class="profile-heading">Profile Details</h3>
 
-    <div>
-        {% if user.profile.image %}
-            <img src="{{ user.profile.image.url }}" alt="Profile Picture" style="max-width: 200px;">
-        {% else %}
-            <p>No profile picture available.</p>
-        {% endif %}
-        <p><strong>Username:</strong> {{ user.username }}</p>
+    <div class="profile-info">
+        <!-- Display Profile Image -->
+        <div class="profile-image">
+            {% if user.profile.image %}
+                <img src="{{ user.profile.image.url }}" alt="Profile Picture" class="profile-pic">
+            {% else %}
+                <p>No profile picture available.</p>
+            {% endif %}
+        </div>
+
+        <!-- Display Username -->
+        <div class="profile-details">
+            <p><strong>Username:</strong> {{ user.username }}</p>
+        </div>
     </div>
 
-    <p>
-        <a href="{% url 'update_profile' %}">Update Profile</a>
-    </p>
-
-    <p>
-        <a href="{% url 'delete_account' %}" style="color: red; text-decoration: none;">Delete Account</a>
-    </p>
+    <!-- Action Links -->
+    <div class="profile-actions">
+        <a href="{% url 'update_profile' %}" class="btn btn-primary">Update Profile</a>
+        <a href="{% url 'delete_account' %}" class="btn btn-danger">Delete Account</a>
+    </div>
+</div>
 {% endblock %}

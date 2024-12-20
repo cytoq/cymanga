@@ -1,10 +1,13 @@
 {% load static %}
+{% load custom_tags %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Manga Site{% endblock %}</title>
+    <!-- Link to the CSS stylesheet -->
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
@@ -12,55 +15,40 @@
         <header class="site-header">
             <nav class="navbar">
                 <ul class="nav-list">
-                    <li class="nav-item"><a href="{% url 'home' %}">Home</a></li>
+                    <!-- Home link -->
+                    <li class="nav-item"><a href="{% url 'home' %}" class="nav-link">Home</a></li>
+
                     {% if user.is_authenticated %}
-                        <li class="nav-item"><a href="{% url 'manga_list' %}">Manga List</a></li>
-                        <li class="nav-item"><a href="{% url 'profile' %}">Profile</a></li>
-                        <li class="nav-item"><a href="{% url 'logout' %}">Logout</a></li>
+                        <!-- Authenticated user navigation -->
+                        <li class="nav-item"><a href="{% url 'manga_list' %}" class="nav-link">Manga List</a></li>
+                        <li class="nav-item"><a href="{% url 'profile' %}" class="nav-link">Profile</a></li>
+
+                        <!-- Only show "Add New Manga" if the user is an admin -->
+                        {% if user|is_admin %}
+                            <li class="nav-item"><a href="{% url 'add_manga' %}" class="nav-link">Add New Manga</a></li>
+                        {% endif %}
+
+                        <!-- Logout link -->
+                        <li class="nav-item"><a href="{% url 'logout' %}" class="nav-link">Logout</a></li>
                     {% else %}
-                        <li class="nav-item"><a href="{% url 'login' %}">Login</a></li>
-                        <li class="nav-item"><a href="{% url 'register' %}">Register</a></li>
+                        <!-- Guest user navigation -->
+                        <li class="nav-item"><a href="{% url 'login' %}" class="nav-link">Login</a></li>
+                        <li class="nav-item"><a href="{% url 'register' %}" class="nav-link">Register</a></li>
                     {% endif %}
                 </ul>
             </nav>
         </header>
 
         <main class="site-content">
-            {% block content %}{% endblock %}
+            <!-- Main content block -->
+            {% block content %}
+                <p>Welcome to the Manga Site! Browse through your favorite mangas.</p>
+            {% endblock %}
         </main>
     </div>
 
     <footer class="footer">
-        <p>&copy; 2024 Cymanga</p>
+        <p>&copy; 2024 Cymanga. All rights reserved.</p>
     </footer>
-
-    <style>
-        /* Sticky Footer Styling */
-        html, body {
-            height: 100%;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .content-wrapper {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-        }
-
-        .site-content {
-            flex-grow: 1; /* Content area takes up all available space */
-        }
-
-        .footer {
-            color: #007BFF;
-            background-color: #333333;
-            text-align: center;
-            padding: 25px 5px;
-            font-size: 12px;
-            margin-top: auto; /* Push the footer to the bottom */
-        }
-    </style>
 </body>
 </html>

@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="form-container">
+        <h2 class="form-heading">Update Manga: {{ manga.title }}</h2>
+        <form method="POST" enctype="multipart/form-data" class="form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Update Manga</button>
+        </form>
+    </div>
+{% endblock %}

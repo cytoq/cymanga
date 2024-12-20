@@ -1,0 +1,54 @@
+/* Apply Poppins font globally */
+body {
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Header and Navigation */
+.site-header {
+    background-color: #007BFF;
+    color: white;
+    padding: 10px 20px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-list {
+    list-style: none;
+    display: flex;
+    gap: 15px;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-item a {
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    font-family: 'Poppins', sans-serif;
+}
+
+.nav-item a:hover {
+    background-color: #0056b3;
+}
+
+.nav-item a.active {
+    background-color: #003366;
+}
+
+.footer {
+    color: #007BFF;
+    background-color: #333333;
+    text-align: center;
+    padding: 25px 5px;
+    font-size: 12px;
+    margin-top: auto; /* Push the footer to the bottom */
+    font-family: 'Poppins', sans-serif;
+}

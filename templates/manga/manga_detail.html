@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
 {% load static %}
-
+{% load custom_tags %}  <!-- Load your custom filter -->
 
 {% block title %}Manga Detail{% endblock %}
 
 {% block content %}
-<div class="manga-detail">
+<div class="manga-detail-container">
     <!-- Display the manga cover image -->
     <div class="manga-cover">
-        <img src="{{ manga.cover_image.url }}" alt="{{ manga.title }} Cover" style="max-width: 300px; max-height: 400px; object-fit: cover;">
+        <img src="{{ manga.cover_image.url }}" alt="{{ manga.title }} Cover">
     </div>
 
     <!-- Display manga details -->
@@ -27,107 +27,171 @@
             <p><strong>End Date:</strong> {{ manga.end_date }}</p>
         {% endif %}
     </div>
-</div>
 
-<!-- Back button -->
-<div style="margin-top: 20px;">
-    <a href="{% url 'manga_list' %}" class="button" style="text-decoration: none; background-color: #007BFF; color: white; padding: 10px 20px; border-radius: 5px;">Back</a>
-</div>
-
-<!-- Rating Section -->
-<div class="rating-section" style="margin-top: 30px;">
-    <h3>Rate This Manga</h3>
-    {% if user.is_authenticated %}
-        <form method="post" action="{% url 'rate_manga' manga_id=manga.pk %}">
-    {% csrf_token %}
-    <label for="rating">Choose a rating:</label>
-    <select name="rating" id="rating" required>
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4">4</option>
-        <option value="5">5</option>
-    </select><br>
-    <button type="submit" style="background-color: #28a745; color: white; padding: 10px 15px; border: none; border-radius: 5px;">Submit Rating</button>
-</form>
-    {% else %}
-        <p><a href="{% url 'login' %}">Log in</a> to rate this manga.</p>
-    {% endif %}
-</div>
-
-<!-- Display Average Rating -->
-<div style="margin-top: 20px;">
-    <p><strong>Average Rating:</strong> 
-        {% if manga.average_rating %}
-            {{ manga.average_rating|floatformat:1 }} / 5
-        {% else %}
-            No ratings yet
+    <!-- Button Container (Back, Edit, Delete) -->
+    <div class="button-container">
+        <!-- Edit button -->
+        {% if user|is_admin %}
+            <a href="{% url 'manga_edit' manga.pk %}" class="button edit-button">Edit Manga</a>
         {% endif %}
-    </p>
-</div>
 
-<!-- Comments Section -->
-<div class="comments-section" style="margin-top: 30px;">
-    <h3>Comments</h3>
-    
-    {% if user.is_authenticated %}
-        <form method="post" action="{% url 'add_comment' manga.id %}">
-            {% csrf_token %}
-            <textarea name="content" rows="4" cols="50" placeholder="Add a comment..." required></textarea><br>
-            <button type="submit" style="background-color: #28a745; color: white; padding: 10px 15px; border: none; border-radius: 5px;">Post Comment</button>
-        </form>
-    {% else %}
-        <p><a href="{% url 'login' %}">Log in</a> to add a comment.</p>
-    {% endif %}
+        <!-- Back button -->
+        <a href="{% url 'manga_list' %}" class="button back-button">Back</a>
 
-    <div class="comment-list" style="margin-top: 20px;">
-        {% for comment in manga.comments.all %}
-            <div class="comment" style="border-bottom: 1px solid #ddd; padding: 10px 0;">
-                <div class="user-info">
-                    <!-- Display profile picture next to username -->
-                    {% if comment.user.profile.image %}
-                        <img src="{{ comment.user.profile.image.url }}" alt="{{ comment.user.username }}'s Avatar" class="avatar">
-                    {% else %}
-                        <img src="{% static 'profile_pics/default.jpg' %}" alt="Default Avatar" class="avatar">
+        <!-- Delete button -->
+        {% if user|is_admin %}
+            <a href="{% url 'manga_delete' manga.pk %}" class="button delete-button">Delete Manga</a>
+        {% endif %}
+    </div>
+
+    <!-- Rating Section -->
+    <div class="rating-section">
+        <h3>Rate This Manga</h3>
+        {% if user.is_authenticated %}
+            <form method="post" action="{% url 'rate_manga' manga_id=manga.pk %}">
+                {% csrf_token %}
+                <label for="rating">Choose a rating:</label>
+                <select name="rating" id="rating" required>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                </select><br>
+                <button type="submit">Submit Rating</button>
+            </form>
+        {% else %}
+            <p><a href="{% url 'login' %}">Log in</a> to rate this manga.</p>
+        {% endif %}
+    </div>
+
+    <!-- Display Average Rating -->
+    <div class="average-rating">
+        <p><strong>Average Rating:</strong>
+            {% if manga.average_rating %}
+                {{ manga.average_rating|floatformat:1 }} / 5
+            {% else %}
+                No ratings yet
+            {% endif %}
+        </p>
+    </div>
+
+    <!-- Comments Section -->
+    <div class="comments-section">
+        <h3>Comments</h3>
+        
+        {% if user.is_authenticated %}
+            <form method="post" action="{% url 'add_comment' manga.id %}">
+                {% csrf_token %}
+                <textarea name="content" rows="4" placeholder="Add a comment..." required></textarea><br>
+                <button type="submit">Post Comment</button>
+            </form>
+        {% else %}
+            <p><a href="{% url 'login' %}">Log in</a> to add a comment.</p>
+        {% endif %}
+
+        <div class="comment-list">
+            {% for comment in manga.comments.all %}
+                <div class="comment">
+                    <div class="user-info">
+                        {% if comment.user.profile.image %}
+                            <img src="{{ comment.user.profile.image.url }}" alt="{{ comment.user.username }}'s Avatar" class="avatar">
+                        {% else %}
+                            <img src="{% static 'images/placeholder.jpg' %}" alt="Default Avatar" class="avatar">
+                        {% endif %}
+                        <strong>{{ comment.user.username }}</strong>
+                    </div>
+                    <p>{{ comment.content }}</p>
+                    <p><small>Posted on: {{ comment.created_at }}</small></p>
+                    {% if comment.user == user or user|is_admin %}
+                        <a href="{% url 'edit_comment' comment.id %}">Edit</a> | 
+                        <a href="{% url 'delete_comment' comment.id %}">Delete</a>
                     {% endif %}
-                    <strong>{{ comment.user.username }}</strong>
                 </div>
-                <p>{{ comment.content }}</p>
-                <p><small>Posted on: {{ comment.created_at }}</small></p>
-                {% if comment.user == user or user.is_staff %}
-                    <a href="{% url 'edit_comment' comment.id %}" style="color: #007BFF;">Edit</a> | 
-                    <a href="{% url 'delete_comment' comment.id %}" style="color: red;">Delete</a>
-                {% endif %}
-            </div>
-        {% empty %}
-            <p>No comments yet. Be the first to comment!</p>
-        {% endfor %}
+            {% empty %}
+                <p>No comments yet. Be the first to comment!</p>
+            {% endfor %}
+        </div>
     </div>
 </div>
-    
-<!-- CSS for styling profile picture and layout -->
-    <style>
-        .user-info {
-            display: flex;
-            align-items: center;
-        }
 
-        .avatar {
-            width: 65px;
-            height: 65px;
-            max-width: 65px;
-            max-height: 65px;
-            border-radius: 75%;
-            margin-right: 10px;
-        }
+<!-- CSS for centering and layout -->
+<style>
+    .manga-detail-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        margin: 20px auto;
+        max-width: 800px;
+    }
 
-        .comment-list p {
-            font-size: 14px;
-        }
+    .manga-cover img {
+        max-width: 300px;
+        max-height: 400px;
+        object-fit: cover;
+    }
 
-        .comment-list strong {
-            font-size: 16px;
-        }
-    </style>    
+    .button-container {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        margin-top: 20px;
+    }
 
+    .button {
+        padding: 10px 20px;
+        border-radius: 5px;
+        text-decoration: none;
+    }
+
+    .back-button {
+        background-color: #007BFF;
+        color: white;
+    }
+
+    .edit-button {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .delete-button {
+        background-color: #FF5733;
+        color: white;
+    }
+
+    .rating-section,
+    .average-rating,
+    .comments-section {
+        margin-top: 20px;
+        width: 100%;
+    }
+
+    .comments-section .comment-list {
+        margin-top: 10px;
+        text-align: left;
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px;
+    }
+
+    .avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        margin-right: 10px;
+    }
+
+    /* Admin Options */
+    .admin-options .button {
+        margin-right: 10px;
+    }
+
+    .admin-options .button:hover {
+        background-color: #0056b3;
+    }
+</style>
 {% endblock %}

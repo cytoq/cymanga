@@ -1,0 +1,26 @@
+/* Header and Navigation */
+.site-header {
+    background-color: #007BFF;
+    color: white;
+    padding: 10px 20px;
+}
+
+.nav-list {
+    list-style: none;
+    display: flex;
+    gap: 15px;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-item a {
+    color: white;
+    font-weight: bold;
+    padding: 5px 10px;  /* Add padding for clickable area */
+    text-decoration: none;  /* Ensure links are not underlined */
+    border-radius: 4px;  /* Optional: Rounded corners */
+}
+
+.nav-item a:hover {
+    background-color: #0056b3;  /* Hover effect */
+}
